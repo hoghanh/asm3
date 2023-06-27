@@ -16,6 +16,8 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { saveFlowers, addToFavorites, getFlowers } from "./Utils";
+
 const Home = ({ navigation }) => {
   const listFlower = [
     {
@@ -176,8 +178,7 @@ const Home = ({ navigation }) => {
     },
   ];
 
-  const [data, setData] = useState(listFlower);
-  const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState(listFlower);
 
   const [selectedButton, setSelectedButton] = useState("all");
 
@@ -187,71 +188,34 @@ const Home = ({ navigation }) => {
 
   const fetchData = async () => {
     try {
-      const storedData = await AsyncStorage.getItem("yourDataKey");
+      const storedData = await AsyncStorage.getItem("flowers");
       if (storedData !== null) {
         const parsedData = JSON.parse(storedData);
-        setData(parsedData);
         setFilteredData(parsedData);
+      } else {
+        saveFlowers(listFlower);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const filterData = (filterValue) => {
+  const filterData = async (filterValue) => {
+    const flowers = await getFlowers();
     let filtered;
+
     setSelectedButton(filterValue);
+
     if (filterValue !== "all") {
-      filtered = data.filter((item) => item.cate === filterValue);
-    } else filtered = data;
+      filtered = flowers.filter((item) => item.cate === filterValue);
+    } else filtered = flowers;
     setFilteredData(filtered);
   };
 
-  // Lưu danh sách yêu thích
-  const saveFavorites = async (favorites) => {
-    try {
-      const jsonFavorites = JSON.stringify(favorites);
-      await AsyncStorage.setItem("favorites", jsonFavorites);
-    } catch (error) {
-      console.log("Lỗi khi lưu danh sách yêu thích:", error);
-    }
-  };
-
-  // Truy xuất danh sách yêu thích
-  const getFavorites = async () => {
-    try {
-      const jsonFavorites = await AsyncStorage.getItem("favorites");
-      return jsonFavorites != null ? JSON.parse(jsonFavorites) : [];
-    } catch (error) {
-      console.log("Lỗi khi truy xuất danh sách yêu thích:", error);
-      return [];
-    }
-  };
-
-  // Thêm một mục vào danh sách yêu thích
-  const addToFavorites = async (item) => {
-    const favorites = await getFavorites();
-    favorites.filter((fav) => fav.id === item.id).length > 0
-      ? removeFromFavorites(item)
-      : favorites.push(item);
-    saveFavorites(favorites);
-  };
-
-  // Xóa một mục khỏi danh sách yêu thích
-  const removeFromFavorites = async (item) => {
-    const favorites = await getFavorites();
-    const updatedFavorites = favorites.filter((fav) => fav.id !== item.id);
-    saveFavorites(updatedFavorites);
-  };
-
-  const handlePress = (item) => {
+  const handlePress = async (item) => {
     console.log("Press", item.id);
-    addToFavorites(item);
-  };
-
-  const isFavorite = async (item) => {
-    const favorites = await getFavorites();
-    return favorites.includes(item) ? true : false;
+    await addToFavorites(item);
+    filterData(selectedButton);
   };
 
   return (
@@ -355,7 +319,7 @@ const Home = ({ navigation }) => {
                     as={MaterialIcons}
                     name="favorite"
                     size="md"
-                    color={isFavorite(item) ? "red" : "gray"}
+                    color={item.isFav === "true" ? "danger.500" : "gray"}
                   />
                 </Pressable>
               </Stack>

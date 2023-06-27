@@ -12,6 +12,12 @@ import {
 import { SwipeListView } from "react-native-swipe-list-view";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  saveFlowers,
+  addToFavorites,
+  getFlowers,
+  clearFavoritesList,
+} from "./Utils";
 
 const Favorites = ({ navigation }) => {
   const [favorites, setFavorites] = useState([]);
@@ -35,37 +41,15 @@ const Favorites = ({ navigation }) => {
     console.log("This row opened", rowKey);
   };
 
+  const fetchFavorites = async () => {
+    let favoritesData = await getFlowers();
+    favoritesData = favoritesData.filter((fav) => fav.isFav === "true");
+    setFavorites(favoritesData);
+  };
+
   useEffect(() => {
-    const fetchFavorites = async () => {
-      const favoritesData = await getFavorites();
-      setFavorites(favoritesData);
-    };
     fetchFavorites();
-  }, []);
-
-  // Truy xuất danh sách yêu thích
-  const getFavorites = async () => {
-    try {
-      const jsonFavorites = await AsyncStorage.getItem("favorites");
-      return jsonFavorites != null ? JSON.parse(jsonFavorites) : [];
-    } catch (error) {
-      console.log("Lỗi khi truy xuất danh sách yêu thích:", error);
-      return [];
-    }
-  };
-
-  //Xoá tất cả trong danh sách yêu thích
-  const clearFavoritesList = async () => {
-    try {
-      // Xoá danh sách yêu thích từ AsyncStorage
-      await AsyncStorage.clear();
-      console.log("Đã xoá tất cả các mục trong danh sách yêu thích.");
-      // Cập nhật state hoặc hiển thị thông báo thành công
-    } catch (error) {
-      console.log("Lỗi khi xoá danh sách yêu thích:", error);
-      // Xử lý lỗi
-    }
-  };
+  }, [favorites]);
 
   const renderItem = ({ item, index }) => (
     <Box>
@@ -168,14 +152,14 @@ const Favorites = ({ navigation }) => {
               <Box
                 bg="red.500"
                 p={3}
-                borderRadius="lg"
+                borderRadius="md"
                 alignItems="center"
                 justifyContent="center"
               >
                 <Icon
                   as={<MaterialIcons name="delete" />}
                   color="white"
-                  size="lg"
+                  size="md"
                 />
                 <Text color="white" fontSize="md" fontWeight="medium">
                   Xoá
