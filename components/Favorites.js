@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Text,
@@ -14,49 +14,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Favorites = ({ navigation }) => {
-  const data = [
-    {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-      fullName: "Afreen Khan",
-      timeStamp: "12:47 PM",
-      recentText: "Good Day!",
-      avatarUrl:
-        "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    },
-    {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-      fullName: "Sujita Mathur",
-      timeStamp: "11:11 PM",
-      recentText: "Cheer up, there!",
-      avatarUrl:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyEaZqT3fHeNrPGcnjLLX1v_W4mvBlgpwxnA&usqp=CAU",
-    },
-    {
-      id: "58694a0f-3da1-471f-bd96-145571e29d72",
-      fullName: "Anci Barroco",
-      timeStamp: "6:22 PM",
-      recentText: "Good Day!",
-      avatarUrl: "https://miro.medium.com/max/1400/0*0fClPmIScV5pTLoE.jpg",
-    },
-    {
-      id: "68694a0f-3da1-431f-bd56-142371e29d72",
-      fullName: "Aniket Kumar",
-      timeStamp: "8:56 PM",
-      recentText: "All the best",
-      avatarUrl:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSr01zI37DYuR8bMV5exWQBSw28C1v_71CAh8d7GP1mplcmTgQA6Q66Oo--QedAN1B4E1k&usqp=CAU",
-    },
-    {
-      id: "28694a0f-3da1-471f-bd96-142456e29d72",
-      fullName: "Kiara",
-      timeStamp: "12:47 PM",
-      recentText: "I will call today.",
-      avatarUrl:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBwgu1A5zgPSvfE83nurkuzNEoXs9DMNr8Ww&usqp=CAU",
-    },
-  ];
-
-  const [listData, setListData] = useState(data);
   const [favorites, setFavorites] = useState([]);
 
   const closeRow = (rowMap, rowKey) => {
@@ -66,6 +23,7 @@ const Favorites = ({ navigation }) => {
   };
 
   const deleteRow = (rowMap, rowKey) => {
+    console.log("delete row");
     closeRow(rowMap, rowKey);
     const newData = [...listData];
     const prevIndex = listData.findIndex((item) => item.key === rowKey);
@@ -82,9 +40,32 @@ const Favorites = ({ navigation }) => {
       const favoritesData = await getFavorites();
       setFavorites(favoritesData);
     };
-
     fetchFavorites();
   }, []);
+
+  // Truy xuất danh sách yêu thích
+  const getFavorites = async () => {
+    try {
+      const jsonFavorites = await AsyncStorage.getItem("favorites");
+      return jsonFavorites != null ? JSON.parse(jsonFavorites) : [];
+    } catch (error) {
+      console.log("Lỗi khi truy xuất danh sách yêu thích:", error);
+      return [];
+    }
+  };
+
+  //Xoá tất cả trong danh sách yêu thích
+  const clearFavoritesList = async () => {
+    try {
+      // Xoá danh sách yêu thích từ AsyncStorage
+      await AsyncStorage.clear();
+      console.log("Đã xoá tất cả các mục trong danh sách yêu thích.");
+      // Cập nhật state hoặc hiển thị thông báo thành công
+    } catch (error) {
+      console.log("Lỗi khi xoá danh sách yêu thích:", error);
+      // Xử lý lỗi
+    }
+  };
 
   const renderItem = ({ item, index }) => (
     <Box>
@@ -102,7 +83,7 @@ const Favorites = ({ navigation }) => {
             <Image
               size="80px"
               source={{
-                uri: item.avatarUrl,
+                uri: item.flowerUrl,
               }}
               alt="favourite list"
               borderRadius={8}
@@ -115,27 +96,29 @@ const Favorites = ({ navigation }) => {
                 }}
                 bold
               >
-                {item.fullName}
+                {item.name}
               </Text>
               <Text
                 color="coolGray.600"
                 _dark={{
                   color: "warmGray.200",
                 }}
+                numberOfLines={2}
+                maxW={150}
               >
-                {item.recentText}
+                {item.des}
               </Text>
             </VStack>
             <Spacer />
             <Text
-              fontSize="xs"
-              color="coolGray.800"
+              fontSize="sm"
+              color="primary.600"
               _dark={{
                 color: "warmGray.50",
               }}
               alignSelf="flex-start"
             >
-              {item.timeStamp}
+              {item.price}
             </Text>
           </HStack>
         </Box>
@@ -151,7 +134,7 @@ const Favorites = ({ navigation }) => {
         cursor="pointer"
         bg="red.500"
         justifyContent="center"
-        onPress={() => deleteRow(rowMap, data.item.key)}
+        onPress={() => deleteRow(rowMap, data.item.id)}
         _pressed={{
           opacity: 0.5,
         }}
@@ -167,18 +150,50 @@ const Favorites = ({ navigation }) => {
   );
 
   return (
-    <Box bg="white" safeArea flex="1">
-      <SwipeListView
-        data={listData}
-        renderItem={renderItem}
-        renderHiddenItem={renderHiddenItem}
-        rightOpenValue={-75}
-        previewRowKey={"0"}
-        previewOpenValue={-40}
-        previewOpenDelay={3000}
-        onRowDidOpen={onRowDidOpen}
-      />
-    </Box>
+    <>
+      {favorites.length > 0 ? (
+        <>
+          <SwipeListView
+            data={favorites}
+            renderItem={renderItem}
+            renderHiddenItem={renderHiddenItem}
+            rightOpenValue={-75}
+            previewRowKey={"0"}
+            previewOpenValue={-40}
+            previewOpenDelay={3000}
+            onRowDidOpen={onRowDidOpen}
+          />
+          <Box position="absolute" bottom={4} right={4}>
+            <Pressable onPress={clearFavoritesList}>
+              <Box
+                bg="red.500"
+                p={3}
+                borderRadius="lg"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Icon
+                  as={<MaterialIcons name="delete" />}
+                  color="white"
+                  size="lg"
+                />
+                <Text color="white" fontSize="md" fontWeight="medium">
+                  Xoá
+                </Text>
+              </Box>
+            </Pressable>
+          </Box>
+        </>
+      ) : (
+        <Box alignItems="center" justifyContent="center" m="auto">
+          <Image
+            size="300"
+            source={require("../img/box.png")}
+            alt="empty icons"
+          />
+        </Box>
+      )}
+    </>
   );
 };
 

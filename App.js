@@ -6,6 +6,7 @@ import { NativeBaseProvider } from "native-base";
 
 import Home from "./components/Home";
 import Favorites from "./components/Favorites";
+import Detail from "./components/Detail";
 
 const Drawer = createDrawerNavigator();
 
@@ -23,6 +24,7 @@ export default function App() {
             }}
           >
             <Drawer.Screen name="Trang chủ" component={Home} />
+            <Drawer.Screen name="Chi tiết" component={Detail} />
             <Drawer.Screen name="Danh sách yêu thích" component={Favorites} />
           </Drawer.Navigator>
         </NavigationContainer>
