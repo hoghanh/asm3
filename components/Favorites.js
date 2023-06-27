@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Text,
@@ -8,37 +8,24 @@ import {
   Image,
   VStack,
   Spacer,
+  AlertDialog,
+  Button,
+  Center,
+  NativeBaseProvider,
 } from "native-base";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  saveFlowers,
-  addToFavorites,
-  getFlowers,
-  clearFavoritesList,
-} from "./Utils";
+import { getFlowers, removeToFavorites, clearFavoritesList } from "./Utils";
 
 const Favorites = ({ navigation }) => {
   const [favorites, setFavorites] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const closeRow = (rowMap, rowKey) => {
-    if (rowMap[rowKey]) {
-      rowMap[rowKey].closeRow();
-    }
-  };
-
-  const deleteRow = (rowMap, rowKey) => {
-    console.log("delete row");
-    closeRow(rowMap, rowKey);
-    const newData = [...listData];
-    const prevIndex = listData.findIndex((item) => item.key === rowKey);
-    newData.splice(prevIndex, 1);
-    setListData(newData);
-  };
-
-  const onRowDidOpen = (rowKey) => {
-    console.log("This row opened", rowKey);
+  const deleteRow = async (item) => {
+    console.log("delete row", item.id);
+    await removeToFavorites(item);
+    onClose();
   };
 
   const fetchFavorites = async () => {
@@ -51,10 +38,10 @@ const Favorites = ({ navigation }) => {
     fetchFavorites();
   }, [favorites]);
 
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({ item }) => (
     <Box>
       <Pressable
-        onPress={() => console.log("You touched me")}
+        onPress={() => navigation.navigate("Chi tiết", { item })}
         _dark={{
           bg: "coolGray.800",
         }}
@@ -110,7 +97,7 @@ const Favorites = ({ navigation }) => {
     </Box>
   );
 
-  const renderHiddenItem = (data, rowMap) => (
+  const renderHiddenItem = ({ item }) => (
     <HStack flex="1" pl="2">
       <Pressable
         w="70"
@@ -118,7 +105,7 @@ const Favorites = ({ navigation }) => {
         cursor="pointer"
         bg="red.500"
         justifyContent="center"
-        onPress={() => deleteRow(rowMap, data.item.id)}
+        onPress={() => deleteRow(item)}
         _pressed={{
           opacity: 0.5,
         }}
@@ -133,6 +120,10 @@ const Favorites = ({ navigation }) => {
     </HStack>
   );
 
+  const onClose = () => setIsOpen(false);
+
+  const cancelRef = useRef(null);
+
   return (
     <>
       {favorites.length > 0 ? (
@@ -145,12 +136,11 @@ const Favorites = ({ navigation }) => {
             previewRowKey={"0"}
             previewOpenValue={-40}
             previewOpenDelay={3000}
-            onRowDidOpen={onRowDidOpen}
           />
           <Box position="absolute" bottom={4} right={4}>
-            <Pressable onPress={clearFavoritesList}>
+            <Pressable onPress={() => setIsOpen(!isOpen)}>
               <Box
-                bg="red.500"
+                bg="danger.500"
                 p={3}
                 borderRadius="md"
                 alignItems="center"
@@ -161,11 +151,39 @@ const Favorites = ({ navigation }) => {
                   color="white"
                   size="md"
                 />
-                <Text color="white" fontSize="md" fontWeight="medium">
-                  Xoá
-                </Text>
               </Box>
             </Pressable>
+            <Center>
+              <AlertDialog
+                leastDestructiveRef={cancelRef}
+                isOpen={isOpen}
+                onClose={onClose}
+                ref={cancelRef}
+              >
+                <AlertDialog.Content>
+                  <AlertDialog.CloseButton />
+                  <AlertDialog.Header>Xoá toàn bộ</AlertDialog.Header>
+                  <AlertDialog.Body>
+                    Xoá hết toàn bộ danh sách yêu thích của bạn. Bạn không còn
+                    yêu thích hoa ư? Thật buồn! Không thể khôi phục đâu!!!
+                  </AlertDialog.Body>
+                  <AlertDialog.Footer>
+                    <Button.Group space={2}>
+                      <Button
+                        variant="subtle"
+                        onPress={onClose}
+                        ref={cancelRef}
+                      >
+                        Huỷ
+                      </Button>
+                      <Button colorScheme="danger" onPress={clearFavoritesList}>
+                        Xoá
+                      </Button>
+                    </Button.Group>
+                  </AlertDialog.Footer>
+                </AlertDialog.Content>
+              </AlertDialog>
+            </Center>
           </Box>
         </>
       ) : (

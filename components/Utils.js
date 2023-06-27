@@ -33,6 +33,19 @@ export const addToFavorites = async (item) => {
   saveFlowers(flowers);
 };
 
+//Xoá một mục khỏi danh sách yêu thích
+export const removeToFavorites = async (item) => {
+  const flowers = await getFlowers();
+
+  flowers.forEach((flower) => {
+    if (flower.id === item.id) {
+      flower.isFav = "false";
+    }
+  });
+
+  saveFlowers(flowers);
+};
+
 //Xoá tất cả trong danh sách yêu thích
 export const clearFavoritesList = async () => {
   try {

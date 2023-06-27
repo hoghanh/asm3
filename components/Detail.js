@@ -21,7 +21,7 @@ const Detail = ({ navigation }) => {
   const [detail, setDetail] = useState(item);
 
   useEffect(() => {
-    fetchDetail();
+    setDetail(item);
   }, [item]);
 
   const fetchDetail = async () => {

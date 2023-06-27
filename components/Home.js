@@ -186,6 +186,14 @@ const Home = ({ navigation }) => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      filterData(selectedButton);
+    });
+
+    return unsubscribe;
+  }, [navigation, selectedButton]);
+
   const fetchData = async () => {
     try {
       const storedData = await AsyncStorage.getItem("flowers");
