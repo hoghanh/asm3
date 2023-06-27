@@ -24,8 +24,19 @@ export default function App() {
             }}
           >
             <Drawer.Screen name="Trang chủ" component={Home} />
-            <Drawer.Screen name="Chi tiết" component={Detail} />
+
             <Drawer.Screen name="Danh sách yêu thích" component={Favorites} />
+            <Drawer.Screen
+              name="Chi tiết"
+              component={Detail}
+              options={{
+                drawerLabel: () => null,
+                title: null,
+                drawerIcon: () => null,
+                drawerActiveBackgroundColor: null,
+                drawerActiveTintColor: null,
+              }}
+            />
           </Drawer.Navigator>
         </NavigationContainer>
       </NativeBaseProvider>

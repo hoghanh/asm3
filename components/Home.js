@@ -266,67 +266,71 @@ const Home = ({ navigation }) => {
         numColumns={2}
         renderItem={({ item }) => (
           <Box alignItems="center" flex={1}>
-            <Box
-              rounded="lg"
-              overflow="hidden"
-              borderColor="coolGray.200"
-              borderWidth="1"
-              margin="2"
-              _dark={{
-                borderColor: "coolGray.600",
-                backgroundColor: "gray.700",
-              }}
-              _web={{
-                shadow: 2,
-                borderWidth: 0,
-              }}
-              _light={{
-                backgroundColor: "gray.50",
-              }}
+            <Pressable
+              onPress={() => navigation.navigate("Chi tiết", { item })}
             >
-              <Box>
-                <AspectRatio w="100%" ratio={4 / 3}>
-                  <Image
-                    source={{
-                      uri: item.flowerUrl,
-                    }}
-                    alt="image"
-                  />
-                </AspectRatio>
-              </Box>
-              <Stack p="3" space={3} direction="row">
-                <Stack space={2} flex={1}>
-                  <Heading size="sm" ml="-1" numberOfLines={1}>
-                    {item.name}
-                  </Heading>
-                  <Text
-                    fontSize="xs"
-                    _light={{
-                      color: "primary.500",
-                    }}
-                    _dark={{
-                      color: "primary.400",
-                    }}
-                    fontWeight="500"
-                    ml="-0.5"
-                    mt="-1"
-                  >
-                    {item.price}
-                  </Text>
+              <Box
+                rounded="lg"
+                overflow="hidden"
+                borderColor="coolGray.200"
+                borderWidth="1"
+                margin="2"
+                _dark={{
+                  borderColor: "coolGray.600",
+                  backgroundColor: "gray.700",
+                }}
+                _web={{
+                  shadow: 2,
+                  borderWidth: 0,
+                }}
+                _light={{
+                  backgroundColor: "gray.50",
+                }}
+              >
+                <Box>
+                  <AspectRatio w="100%" ratio={4 / 3}>
+                    <Image
+                      source={{
+                        uri: item.flowerUrl,
+                      }}
+                      alt="image"
+                    />
+                  </AspectRatio>
+                </Box>
+                <Stack p="3" pb="0" space={3} direction="row">
+                  <Stack space={2} flex={1}>
+                    <Heading size="sm" ml="-1" numberOfLines={1}>
+                      {item.name}
+                    </Heading>
+                    <Text
+                      fontSize="xs"
+                      _light={{
+                        color: "primary.500",
+                      }}
+                      _dark={{
+                        color: "primary.400",
+                      }}
+                      fontWeight="500"
+                      ml="-0.5"
+                      mt="-1"
+                    >
+                      {item.price}
+                    </Text>
+                  </Stack>
+                  <Pressable p="2" onPress={() => handlePress(item)}>
+                    <Icon
+                      as={MaterialIcons}
+                      name="favorite"
+                      size="md"
+                      color={item.isFav === "true" ? "danger.500" : "gray"}
+                    />
+                  </Pressable>
                 </Stack>
-                <Pressable p="2" onPress={() => handlePress(item)}>
-                  <Icon
-                    as={MaterialIcons}
-                    name="favorite"
-                    size="md"
-                    color={item.isFav === "true" ? "danger.500" : "gray"}
-                  />
-                </Pressable>
-              </Stack>
-              <Text p="2" space={3} fontWeight="400" numberOfLines={3}>
-                {item.des}
-              </Text>
-            </Box>
+                <Text p="2" space={3} fontWeight="400" numberOfLines={3}>
+                  {item.des}
+                </Text>
+              </Box>
+            </Pressable>
           </Box>
         )}
         keyExtractor={(item) => item.id}

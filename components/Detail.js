@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Heading,
@@ -11,8 +11,30 @@ import {
   NativeBaseProvider,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRoute } from "@react-navigation/native";
+import { saveFlowers, addToFavorites, getFlowers } from "./Utils";
 
-const Detail = () => {
+const Detail = ({ navigation }) => {
+  const route = useRoute();
+  const { item } = route.params;
+
+  const [detail, setDetail] = useState(item);
+
+  useEffect(() => {
+    fetchDetail();
+  }, [item]);
+
+  const fetchDetail = async () => {
+    let flowers = await getFlowers();
+    setDetail(flowers.find((flower) => flower.id === item.id));
+  };
+
+  const handlePress = async (item) => {
+    console.log("Press", item.id);
+    await addToFavorites(item);
+    fetchDetail();
+  };
+
   return (
     <Box alignItems="center" p="3">
       <Box
@@ -37,16 +59,16 @@ const Detail = () => {
           <AspectRatio w="100%" ratio={16 / 9}>
             <Image
               source={{
-                uri: "https://www.holidify.com/images/cmsuploads/compressed/Bangalore_citycover_20190613234056.jpg",
+                uri: detail.flowerUrl,
               }}
               alt="image"
             />
           </AspectRatio>
         </Box>
-        <Stack p="3" space={3} direction="row">
+        <Stack p="5" pb="0" space={3} direction="row">
           <Stack space={2} flex={1}>
             <Heading size="sm" ml="-1">
-              jabsdjgdkgak
+              {detail.name}
             </Heading>
             <Text
               fontSize="xs"
@@ -60,15 +82,20 @@ const Detail = () => {
               ml="-0.5"
               mt="-1"
             >
-              ksagdjags
+              {detail.price}
             </Text>
           </Stack>
-          <Pressable p="2" onPress={() => handlePress(item)}>
-            <Icon as={MaterialIcons} name="favorite" size="lg" color="gray" />
+          <Pressable p="3" onPress={() => handlePress(detail)}>
+            <Icon
+              as={MaterialIcons}
+              name="favorite"
+              size="md"
+              color={detail.isFav === "true" ? "danger.500" : "gray"}
+            />
           </Pressable>
         </Stack>
-        <Text p="2" space={3} fontWeight="400" numberOfLines={3}>
-          kasjgdasgmdg
+        <Text p="4" pt="0" space={3} fontWeight="400">
+          {detail.des}
         </Text>
       </Box>
     </Box>
