@@ -25,7 +25,6 @@ const Favorites = ({ navigation }) => {
   const deleteRow = async (item) => {
     console.log("delete row", item.id);
     await removeToFavorites(item);
-    onClose();
   };
 
   const fetchFavorites = async () => {
@@ -176,7 +175,13 @@ const Favorites = ({ navigation }) => {
                       >
                         Huỷ
                       </Button>
-                      <Button colorScheme="danger" onPress={clearFavoritesList}>
+                      <Button
+                        colorScheme="danger"
+                        onPress={() => {
+                          clearFavoritesList();
+                          onClose();
+                        }}
+                      >
                         Xoá
                       </Button>
                     </Button.Group>

@@ -15,6 +15,7 @@ import {
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
 
 import { saveFlowers, addToFavorites, getFlowers } from "./Utils";
 
@@ -182,17 +183,14 @@ const Home = ({ navigation }) => {
 
   const [selectedButton, setSelectedButton] = useState("all");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
+    if (isFocused) {
+      fetchData();
       filterData(selectedButton);
-    });
-
-    return unsubscribe;
-  }, [navigation, selectedButton]);
+    }
+  }, [isFocused]);
 
   const fetchData = async () => {
     try {
@@ -227,7 +225,7 @@ const Home = ({ navigation }) => {
   };
 
   return (
-    <View>
+    <View style={{ flex: 1, flexGrow: 1 }}>
       <Stack
         mb="2.5"
         mt="1.5"
