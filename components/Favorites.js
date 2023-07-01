@@ -15,7 +15,6 @@ import {
 } from "native-base";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { MaterialIcons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getFlowers, removeToFavorites, clearFavoritesList } from "./Utils";
 
 const Favorites = ({ navigation }) => {
@@ -25,6 +24,7 @@ const Favorites = ({ navigation }) => {
   const deleteRow = async (item) => {
     console.log("delete row", item.id);
     await removeToFavorites(item);
+    fetchFavorites();
   };
 
   const fetchFavorites = async () => {
@@ -136,8 +136,8 @@ const Favorites = ({ navigation }) => {
             previewOpenValue={-40}
             previewOpenDelay={3000}
           />
-          <Box position="absolute" bottom={4} right={4}>
-            <Pressable onPress={() => setIsOpen(!isOpen)}>
+          <Pressable onPress={() => setIsOpen(!isOpen)}>
+            <Box position="absolute" bottom={4} right={4}>
               <Box
                 bg="danger.500"
                 p={3}
@@ -151,45 +151,40 @@ const Favorites = ({ navigation }) => {
                   size="md"
                 />
               </Box>
-            </Pressable>
-            <Center>
-              <AlertDialog
-                leastDestructiveRef={cancelRef}
-                isOpen={isOpen}
-                onClose={onClose}
-                ref={cancelRef}
-              >
-                <AlertDialog.Content>
-                  <AlertDialog.CloseButton />
-                  <AlertDialog.Header>Xoá toàn bộ</AlertDialog.Header>
-                  <AlertDialog.Body>
-                    Xoá hết toàn bộ danh sách yêu thích của bạn. Bạn không còn
-                    yêu thích hoa ư? Thật buồn! Không thể khôi phục đâu!!!
-                  </AlertDialog.Body>
-                  <AlertDialog.Footer>
-                    <Button.Group space={2}>
-                      <Button
-                        variant="subtle"
-                        onPress={onClose}
-                        ref={cancelRef}
-                      >
-                        Huỷ
-                      </Button>
-                      <Button
-                        colorScheme="danger"
-                        onPress={() => {
-                          clearFavoritesList();
-                          onClose();
-                        }}
-                      >
-                        Xoá
-                      </Button>
-                    </Button.Group>
-                  </AlertDialog.Footer>
-                </AlertDialog.Content>
-              </AlertDialog>
-            </Center>
-          </Box>
+            </Box>
+          </Pressable>
+          <Center>
+            <AlertDialog
+              leastDestructiveRef={cancelRef}
+              isOpen={isOpen}
+              onClose={onClose}
+            >
+              <AlertDialog.Content>
+                <AlertDialog.CloseButton />
+                <AlertDialog.Header>Xoá toàn bộ</AlertDialog.Header>
+                <AlertDialog.Body>
+                  Xoá hết toàn bộ danh sách yêu thích của bạn. Bạn không còn yêu
+                  thích hoa ư? Thật buồn! Không thể khôi phục đâu!!!
+                </AlertDialog.Body>
+                <AlertDialog.Footer>
+                  <Button.Group space={2}>
+                    <Button variant="subtle" onPress={onClose} ref={cancelRef}>
+                      Huỷ
+                    </Button>
+                    <Button
+                      colorScheme="danger"
+                      onPress={() => {
+                        onClose();
+                        clearFavoritesList();
+                      }}
+                    >
+                      Xoá
+                    </Button>
+                  </Button.Group>
+                </AlertDialog.Footer>
+              </AlertDialog.Content>
+            </AlertDialog>
+          </Center>
         </>
       ) : (
         <Box alignItems="center" justifyContent="center" m="auto">

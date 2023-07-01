@@ -9,10 +9,12 @@ import {
   Stack,
   Icon,
   NativeBaseProvider,
+  Button,
+  ScrollView,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
-import { saveFlowers, addToFavorites, getFlowers } from "./Utils";
+import { addToFavorites, getFlowers } from "./Utils";
 
 const Detail = ({ navigation }) => {
   const route = useRoute();
@@ -38,7 +40,7 @@ const Detail = ({ navigation }) => {
   return (
     <Box alignItems="center" p="3">
       <Box
-        height="100%"
+        height="93%"
         rounded="lg"
         overflow="hidden"
         borderColor="coolGray.200"
@@ -89,15 +91,20 @@ const Detail = ({ navigation }) => {
             <Icon
               as={MaterialIcons}
               name="favorite"
-              size="md"
+              size="lg"
               color={detail.isFav === "true" ? "danger.500" : "gray"}
             />
           </Pressable>
         </Stack>
-        <Text p="4" pt="0" space={3} fontWeight="400">
-          {detail.des}
-        </Text>
+        <ScrollView>
+          <Text p="4" pt="0" space={3} fontWeight="400">
+            {detail.des}
+          </Text>
+        </ScrollView>
       </Box>
+      <Button variant="subtle" m="2" onPress={() => navigation.goBack()}>
+        Quay lại trang trước
+      </Button>
     </Box>
   );
 };

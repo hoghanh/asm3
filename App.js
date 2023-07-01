@@ -24,7 +24,6 @@ export default function App() {
             }}
           >
             <Drawer.Screen name="Trang chủ" component={Home} />
-
             <Drawer.Screen name="Danh sách yêu thích" component={Favorites} />
             <Drawer.Screen
               name="Chi tiết"
